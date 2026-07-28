@@ -1,0 +1,485 @@
+/* Font Face */
+@font-face {
+    font-family: 'FairyDustBand';
+    src: url('../assets/fonts/FairyDustBand.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+:root {
+    /* Faction Colors */
+    --chaos-primary: #000000;
+    --chaos-secondary: #ff0000;
+    --earth: #AD8163;
+    --fairy: #00E3FF;
+    --fungus: #057C00;
+    --greed: #FF00AE;
+    --lava: #B60000;
+    --lightning: #ebff00;
+    --moon: #FFFFFF;
+    --ocean: #0300B6;
+    --purity: #A67C00;
+    --sorcery: #3D006C;
+    --spirit: #6C6C6C;
+    --sun: #FF8D00;
+    --tar: #000000;
+    
+    /* Card Back Palette */
+    --card-purple: #6036aa;
+    --card-lavender: #d8acef;
+    --card-light-purple: #ceabfc;
+    --card-black: #000002;
+    --card-deep-purple: #381a5f;
+    --card-mid-purple: #36245b;
+    --card-brown: #3c1e13;
+    --card-gray: #7d746e;
+    --card-dark-brown: #251103;
+    --card-beige: #c4b49e;
+    --card-gold: #755e3b;
+    
+    /* Site Theme */
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #1a1a2e;
+    --text-primary: #ffffff;
+    --text-secondary: #c4b49e;
+    --accent: #6036aa;
+    
+    /* Typography */
+    --font-display: 'FairyDustBand', fantasy;
+    --font-body: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.font-display {
+    font-family: var(--font-display);
+}
+
+.text-chaos { color: var(--chaos-secondary); }
+.text-earth { color: var(--earth); }
+.text-fairy { color: var(--fairy); }
+.text-fungus { color: var(--fungus); }
+.text-greed { color: var(--greed); }
+.text-lava { color: var(--lava); }
+.text-lightning { color: var(--lightning); }
+.text-moon { color: var(--moon); }
+.text-ocean { color: var(--ocean); }
+.text-purity { color: var(--purity); }
+.text-sorcery { color: var(--sorcery); }
+.text-spirit { color: var(--spirit); }
+.text-sun { color: var(--sun); }
+.text-tar { color: var(--tar); }
+
+/* ============================================
+   NAVIGATION (shared across all pages)
+   ============================================ */
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--accent);
+    position: relative;
+    z-index: 1000;
+}
+
+.logo-link {
+    text-decoration: none;
+    position: absolute;
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.logo-link:hover .logo,
+.logo-link:hover {
+    color: var(--card-light-purple);
+    text-shadow: 0 0 20px var(--card-purple);
+    cursor: pointer;
+}
+
+.logo {
+    font-size: 2rem;
+    color: var(--card-lavender);
+    text-shadow: 0 0 10px var(--card-purple);
+    font-family: var(--font-display);
+}
+
+.nav-logo-right {
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.nav-logo-right img {
+    height: 75px;
+    width: auto;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(96, 54, 170, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.nav-logo-right img:hover {
+    transform: scale(1.1);
+}
+
+/* Dropdown - OVERLAPS page content, doesn't expand navbar */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    min-width: 180px;
+    z-index: 9999;
+    padding: 0.5rem 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 0.6rem 1.2rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.dropdown-content a:hover {
+    background: rgba(96, 54, 170, 0.2);
+    color: var(--card-light-purple);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown > a::after {
+    content: ' ▼';
+    font-size: 0.6rem;
+    vertical-align: middle;
+    margin-left: 0.3rem;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--card-light-purple);
+}
+
+.btn-login {
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.admin-link {
+    color: var(--chaos-secondary) !important;
+    text-shadow: 0 0 10px var(--chaos-secondary);
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Mobile hamburger */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: 1px solid var(--accent);
+    color: var(--card-lavender);
+    font-size: 1.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ============================================
+   PAGE LAYOUT UTILITIES
+   ============================================ */
+.page-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-header h2 {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--card-lavender);
+    text-shadow: 0 0 20px var(--card-purple);
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+input, textarea, select {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    color: var(--text-primary);
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+}
+
+button {
+    padding: 1rem 2rem;
+    background: var(--card-purple);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: var(--card-deep-purple);
+}
+
+.btn-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--card-purple);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-family: var(--font-display);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--bg-secondary);
+    border-top: 2px solid var(--accent);
+    margin-top: auto;
+}
+
+footer p {
+    font-size: 1.5rem;
+    color: var(--card-lavender);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-display);
+}
+
+footer span {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* ============================================
+   AUTH PAGE
+   ============================================ */
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+}
+
+.auth-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.auth-box h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--card-lavender);
+    margin-bottom: 0.5rem;
+}
+
+.auth-box p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.auth-box input {
+    margin-bottom: 1rem;
+}
+
+.auth-box button {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.auth-toggle {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+}
+
+.auth-toggle a {
+    color: var(--card-light-purple);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* ============================================
+ADMIN BADGE
+   ============================================ */
+.admin-preview-badge {
+    display: none;
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--chaos-secondary);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+}
+
+/* ============================================
+MOBILE RESPONSIVE
+   ============================================ */
+@media (max-width: 1023px) {
+    .navbar {
+        flex-wrap: wrap;
+        padding: 1rem;
+        justify-content: space-between;
+    }
+    
+    .logo-link {
+        position: static;
+        transform: none;
+        flex: 1;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .nav-logo-right {
+        position: static;
+        transform: none;
+        margin-left: auto;
+        order: 2;
+    }
+    
+    .nav-logo-right img {
+        height: 50px;
+    }
+    
+    .nav-toggle {
+        display: block;
+        order: 3;
+        margin-left: 1rem;
+    }
+    
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+        order: 4;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    
+    .nav-links.active {
+        display: flex;
+    }
+    
+    .nav-links a {
+        padding: 0.8rem;
+        border-bottom: 1px solid rgba(96, 54, 170, 0.2);
+    }
+    
+    .dropdown-content {
+        position: static;
+        display: none;
+        border: none;
+        box-shadow: none;
+        background: rgba(0,0,0,0.2);
+        padding: 0;
+    }
+    
+    .dropdown.active .dropdown-content {
+        display: block;
+    }
+    
+    .page-content {
+        padding: 1rem;
+    }
+    
+    .page-header h2 {
+        font-size: 2rem;
+    }
+}
+
+
+

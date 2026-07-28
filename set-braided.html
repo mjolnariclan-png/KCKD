@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Braided - Kloak & Daggurrs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Cormorant+SC:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/locks.css">
+    <link rel="stylesheet" href="css/set-braided.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body data-set="braided">
+    
+    <div class="admin-preview-badge" id="adminPreviewBadge">ADMIN PREVIEW</div>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo-link">
+            <div class="logo font-display">Kloak & Daggurrs</div>
+        </a>
+        <a href="index.html" class="nav-logo-right">
+            <img src="assets/logo-icon.png" alt="K&D">
+        </a>
+        <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+        <div class="nav-links" id="navLinks">
+            <div class="dropdown">
+                <a href="factions.html">Factions</a>
+                <div class="dropdown-content">
+                    <a href="factions.html">All Factions</a>
+                    <a href="set-fehu.html">Fehu</a>
+                    <a href="set-godrin.html">Godrin</a>
+                    <a href="set-braided.html">Braided</a>
+                </div>
+            </div>
+            <a href="vault.html">Vault</a>
+            <a href="whispers.html">Whispers</a>
+            <a href="learn-to-play.html">Learn to Play</a>
+            <a href="contact.html">Contact</a>
+            <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">Admin Portal</a>
+            <a href="login.html" id="authBtn" class="btn-login">Sign In</a>
+        </div>
+    </nav>
+
+    <!-- LOCKED VIEW -->
+    <div class="locked-view" id="braidedLocked">
+        <div class="seal-sigil"><span>&#10067;</span></div>
+        <h1 class="locked-title">Braided</h1>
+        <div class="lock-timer" id="braidedTimer">Calculating...</div>
+        <div class="lock-date" id="braidedLockDate">Sealed until further notice</div>
+    </div>
+
+    <!-- TEASER VIEW -->
+    <div class="teaser-view" id="braidedTeaser">
+        <div class="teaser-content">
+            <div class="seal-sigil" style="animation: pulse-braided 2s infinite;">
+                <span style="color: #00E3FF;">&#9733;</span>
+            </div>
+            <h1 class="locked-title" style="color: #00E3FF; opacity: 0.6; filter: blur(1px);">Braided</h1>
+            <p class="teaser-text">Threads of fate intertwine. The weave grows stronger.</p>
+            <div class="teaser-timer" id="braidedTeaserTimer">Arriving soon</div>
+            <div class="teaser-progress">
+                <div class="progress-bar" id="teaserProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UNLOCKED VIEW -->
+    <div class="unlocked-view" id="braidedUnlocked">
+        <header class="set-hero">
+            <h1 class="set-title">Braided</h1>
+            <p class="set-tagline">Every thread has two ends. Pull carefully.</p>
+            <div class="set-progress" id="braidedProgress">0/120 Uncovered</div>
+        </header>
+
+        <main class="page-content">
+            <section style="margin-bottom: 5rem;">
+                <h2 class="section-title">The Loom of Fate</h2>
+                <div class="story-text">
+                    <p>The Braided do not see time as a river. They see it as a tapestry—each life a thread, each choice a knot. To them, prophecy is not prediction. It is reading the pattern that already exists.</p>
+                    
+                    <p>Their seers go mad young. The human mind was not meant to perceive so many threads at once. Those who survive the madness become Oracles, and their word is law among the Braided.</p>
+                    
+                    <p>But even they cannot see where their own threads lead.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">The Hoard</h2>
+                <div class="collection-grid" id="braidedGrid">
+                    <div class="vault-slot rarity-common">
+                        <div class="vault-card-back"></div>
+                        <span class="drop-date">#001 Common</span>
+                    </div>
+                    <div class="vault-slot rarity-uncommon">
+                        <div class="vault-card-back"></div>
+                        <span class="drop-date">#002 Uncommon</span>
+                    </div>
+                    <div class="vault-slot rarity-rare">
+                        <div class="vault-card-back"></div>
+                        <span class="drop-date">#003 Rare</span>
+                    </div>
+                    <div class="vault-slot rarity-mythic">
+                        <div class="vault-card-back"></div>
+                        <span class="drop-date">#004 Mythic</span>
+                    </div>
+                    <div class="vault-slot rarity-gold">
+                        <div class="vault-card-back"></div>
+                        <span class="drop-date">#005 Gold</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p class="font-display">Kloak & Daggurrs</p>
+        <span>All secrets have a price.</span>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+    <script type="module">
+        import { initSetPage } from './js/set-pages.js';
+        initSetPage('Braided');
+    </script>
+</body>
+</html>

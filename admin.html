@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K&D Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Metamorphous&family=Cormorant+SC:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar admin-nav">
+        <a href="index.html" class="logo-link">
+            <div class="logo font-display">K&D Control</div>
+        </a>
+        <a href="index.html" class="nav-logo-right">
+            <img src="assets/logo-icon.png" alt="K&D">
+        </a>
+        <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+        <div class="nav-links" id="navLinks">
+            <div class="dropdown">
+                <a href="factions.html">Factions</a>
+                <div class="dropdown-content">
+                    <a href="factions.html">All Factions</a>
+                    <a href="set-fehu.html">Fehu</a>
+                    <a href="set-godrin.html">Godrin</a>
+                    <a href="set-braided.html">Braided</a>
+                </div>
+            </div>
+            <a href="vault.html">Vault</a>
+            <a href="whispers.html">Whispers</a>
+            <a href="learn-to-play.html">Learn to Play</a>
+            <a href="contact.html">Contact</a>
+            <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">Admin Portal</a>
+            <a href="login.html" id="authBtn" class="btn-login">Sign In</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 class="font-display">Vault Control</h1>
+            <div id="adminStatus" class="loading">Checking access...</div>
+        </div>
+
+        <div id="loadingState" style="text-align: center; padding: 3rem;">
+            <p class="loading">Verifying credentials...</p>
+        </div>
+
+        <div id="loginForm" style="display: none; max-width: 400px; margin: 0 auto; text-align: center;">
+            <h3>Authentication Required</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Admin access only.</p>
+            <input type="email" id="loginEmail" placeholder="Email" style="width: 100%; margin: 0.5rem 0;">
+            <input type="password" id="loginPass" placeholder="Password" style="width: 100%; margin: 0.5rem 0;">
+            <button onclick="signInUser()" class="btn-save" style="width: 100%; margin-top: 1rem;">Sign In</button>
+            <a href="index.html" style="display: block; margin-top: 1rem; color: var(--text-secondary);">← Return to Site</a>
+        </div>
+
+        <div id="accessDenied" style="display: none; text-align: center; padding: 3rem;">
+            <h3 class="error">Access Denied</h3>
+            <p style="color: var(--text-secondary);">You do not have admin privileges.</p>
+            <a href="index.html" style="display: inline-block; margin-top: 1rem; color: var(--card-light-purple);">Return to Site</a>
+        </div>
+
+        <div id="adminPanel" style="display: none;">
+            <button onclick="showAddForm()" class="btn-add">+ Schedule New Drop</button>
+            
+            <div id="addForm" style="display: none; background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--accent);">
+                <h3 class="font-display">New Drop</h3>
+                <div class="form-grid">
+                    <input type="text" id="newTitle" placeholder="Title (e.g., Fehu, Godrin, Card #001)">
+                    <select id="newType">
+                        <option value="faction">Faction</option>
+                        <option value="vault">Vault Card</option>
+                        <option value="timeline">Timeline Event</option>
+                        <option value="hero">Hero Section</option>
+                        <option value="page">Page Release (Set Pages)</option>
+                        <option value="whisper">Whisper</option>
+                    </select>
+                    <div style="grid-column: span 2;">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem;">Teaser Date (CST) - When preview appears:</label>
+                        <input type="datetime-local" id="newTeaserDate">
+                        <div class="timezone-note">All times are Central Standard Time (Iowa)</div>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem;">Official Drop Date (CST) - When fully unlocked:</label>
+                        <input type="datetime-local" id="newDropDate">
+                    </div>
+                    <input type="text" id="newImage" placeholder="Image path or hex color (#8B4513)" value="assets/cards/card-back.png">
+                    <input type="number" id="newBlur" placeholder="Blur px" value="8">
+                    <input type="number" id="newOrder" placeholder="Sort Order" value="0">
+                    <textarea id="newDesc" placeholder="Description / Lore / Tagline" style="grid-column: span 2;" rows="4"></textarea>
+                    <textarea id="newStory" placeholder="Full Story Content (HTML supported)" style="grid-column: span 2;" rows="6"></textarea>
+                </div>
+                <button onclick="addDrop()" class="btn-save" style="margin-top: 1rem;">Create Drop</button>
+                <button onclick="hideAddForm()" style="margin-left: 1rem;">Cancel</button>
+            </div>
+
+            <div id="dropsList"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { signIn, signOut, isAdmin, getAllDropsAdmin, updateDrop, createDrop, deleteDrop, supabase, formatForDateTimeLocal, formatDisplayDate, nowInCST, inputToUTC } from './js/supabase.js';
+
+        async function checkAuth() {
+            try {
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError || !session) {
+                    showLogin();
+                    return;
+                }
+
+                const admin = await isAdmin();
+                if (admin) {
+                    showAdminPanel();
+                    loadDrops();
+                } else {
+                    showAccessDenied();
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                showLogin();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function showLogin() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminStatus').innerHTML = '<span class="error">Not signed in</span>';
+        }
+
+        function showAccessDenied() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminStatus').innerHTML = '<span class="error">Access Denied</span>';
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminStatus').innerHTML = '<span style="color: var(--fungus)">Access Granted</span>';
+            
+            const authBtn = document.getElementById('authBtn');
+            if (authBtn) {
+                authBtn.textContent = 'Sign Out';
+                authBtn.href = '#';
+                authBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    await signOut();
+                    window.location.href = 'index.html';
+                };
+            }
+        }
+
+        window.signInUser = async () => {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            showLoading();
+            const { error } = await signIn(email, pass);
+            if (error) {
+                alert('Access denied: ' + error.message);
+                showLogin();
+            } else {
+                await checkAuth();
+            }
+        };
+
+        function getStatus(drop) {
+            const now = nowInCST();
+            const teaser = new Date(drop.teaser_at);
+            const unlock = new Date(drop.unlock_at);
+            
+            if (!drop.is_visible) return { text: 'HIDDEN', class: 'status-hidden' };
+            if (now >= unlock) return { text: 'UNLOCKED', class: 'status-unlocked' };
+            if (now >= teaser) return { text: 'TEASER', class: 'status-teaser' };
+            return { text: 'LOCKED', class: 'status-locked' };
+        }
+
+        async function loadDrops() {
+            const drops = await getAllDropsAdmin();
+            const container = document.getElementById('dropsList');
+            
+            if (!drops || drops.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No drops scheduled.</p>';
+                return;
+            }
+            
+            container.innerHTML = drops.map(drop => {
+                const status = getStatus(drop);
+                
+                return `
+                <div class="drop-card" data-id="${drop.id}">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <h4 class="font-display">${drop.title} <span class="status-badge ${status.class}">${status.text}</span></h4>
+                        <button onclick="deleteThis('${drop.id}')" class="btn-delete">Delete</button>
+                    </div>
+                    <div class="form-grid">
+                        <input type="text" class="edit-title" value="${drop.title}">
+                        <select class="edit-type">
+                            <option value="faction" ${drop.drop_type === 'faction' ? 'selected' : ''}>Faction</option>
+                            <option value="vault" ${drop.drop_type === 'vault' ? 'selected' : ''}>Vault</option>
+                            <option value="timeline" ${drop.drop_type === 'timeline' ? 'selected' : ''}>Timeline</option>
+                            <option value="hero" ${drop.drop_type === 'hero' ? 'selected' : ''}>Hero</option>
+                            <option value="page" ${drop.drop_type === 'page' ? 'selected' : ''}>Page Release</option>
+                            <option value="whisper" ${drop.drop_type === 'whisper' ? 'selected' : ''}>Whisper</option>
+                        </select>
+                        <div style="grid-column: span 2;">
+                            <label style="color: var(--text-secondary); font-size: 0.85rem;">Teaser Date (CST):</label>
+                            <input type="datetime-local" class="edit-teaser" value="${drop.teaser_at ? formatForDateTimeLocal(new Date(drop.teaser_at)) : ''}">
+                            <div class="date-display">Current: ${drop.teaser_at ? formatDisplayDate(drop.teaser_at) : 'Not set'}</div>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label style="color: var(--text-secondary); font-size: 0.85rem;">Official Drop Date (CST):</label>
+                            <input type="datetime-local" class="edit-date" value="${drop.unlock_at ? formatForDateTimeLocal(new Date(drop.unlock_at)) : ''}">
+                            <div class="date-display">Current: ${drop.unlock_at ? formatDisplayDate(drop.unlock_at) : 'Not set'}</div>
+                        </div>
+                        <input type="text" class="edit-image" value="${drop.image_url || ''}" placeholder="Image path or hex color">
+                        <input type="number" class="edit-blur" value="${drop.blur_level || 0}">
+                        <input type="number" class="edit-order" value="${drop.sort_order || 0}">
+                        <label style="grid-column: span 2;">
+                            <input type="checkbox" class="edit-visible" ${drop.is_visible ? 'checked' : ''}> Visible on site
+                        </label>
+                        <textarea class="edit-desc" style="grid-column: span 2;" rows="3" placeholder="Description / Tagline">${drop.description || ''}</textarea>
+                        <textarea class="edit-story" style="grid-column: span 2;" rows="4" placeholder="Full Story Content (HTML)">${drop.story_content || ''}</textarea>
+                    </div>
+                    <button onclick="saveThis('${drop.id}')" class="btn-save" style="margin-top: 1rem;">Save Changes</button>
+                </div>
+                `;
+            }).join('');
+        }
+
+        window.saveThis = async (id) => {
+            const card = document.querySelector(`[data-id="${id}"]`);
+            const teaserVal = card.querySelector('.edit-teaser').value;
+            const unlockVal = card.querySelector('.edit-date').value;
+            
+            const updates = {
+                title: card.querySelector('.edit-title').value,
+                drop_type: card.querySelector('.edit-type').value,
+                teaser_at: inputToUTC(teaserVal),
+                unlock_at: inputToUTC(unlockVal),
+                image_url: card.querySelector('.edit-image').value,
+                blur_level: parseInt(card.querySelector('.edit-blur').value),
+                sort_order: parseInt(card.querySelector('.edit-order').value),
+                is_visible: card.querySelector('.edit-visible').checked,
+                description: card.querySelector('.edit-desc').value,
+                story_content: card.querySelector('.edit-story').value
+            };
+            
+            console.log('Saving updates:', updates);
+            
+            const { error } = await updateDrop(id, updates);
+            if (error) alert('Error: ' + error.message);
+            else { 
+                alert('Updated!'); 
+                loadDrops(); 
+            }
+        };
+
+        window.deleteThis = async (id) => {
+            if (!confirm('Delete this drop?')) return;
+            const { error } = await deleteDrop(id);
+            if (error) alert('Error: ' + error.message);
+            else loadDrops();
+        };
+
+        window.showAddForm = () => {
+            document.getElementById('addForm').style.display = 'block';
+            const nowCST = formatForDateTimeLocal(nowInCST());
+            document.getElementById('newTeaserDate').value = nowCST;
+            document.getElementById('newDropDate').value = nowCST;
+        };
+        
+        window.hideAddForm = () => document.getElementById('addForm').style.display = 'none';
+
+        window.addDrop = async () => {
+            const teaserVal = document.getElementById('newTeaserDate').value;
+            const dropVal = document.getElementById('newDropDate').value;
+            
+            const drop = {
+                title: document.getElementById('newTitle').value,
+                drop_type: document.getElementById('newType').value,
+                teaser_at: inputToUTC(teaserVal),
+                unlock_at: inputToUTC(dropVal),
+                image_url: document.getElementById('newImage').value,
+                blur_level: parseInt(document.getElementById('newBlur').value),
+                sort_order: parseInt(document.getElementById('newOrder').value),
+                description: document.getElementById('newDesc').value,
+                story_content: document.getElementById('newStory').value,
+                is_visible: true
+            };
+            
+            console.log('Creating drop:', drop);
+            
+            const { error } = await createDrop(drop);
+            if (error) alert('Error: ' + error.message);
+            else { 
+                hideAddForm(); 
+                loadDrops(); 
+            }
+        };
+
+        window.toggleNav = () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        };
+
+        checkAuth();
+        
+        supabase.auth.onAuthStateChange((event) => {
+            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                checkAuth();
+            }
+        });
+    </script>
+</body>
+</html>
