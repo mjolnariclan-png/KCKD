@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Orders - K&D</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Metamorphous&family=Cormorant+SC:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/print.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="print-page">
+    <nav class="navbar">
+        <a href="index.html" class="logo-link">
+            <div class="logo font-display">Kloak & Daggurrs</div>
+        </a>
+        <a href="index.html" class="nav-logo-right">
+            <img src="assets/logo-icon.png" alt="K&D">
+        </a>
+        <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+        <div class="nav-links" id="navLinks">
+            <div class="dropdown">
+                <a href="factions.html">Factions</a>
+                <div class="dropdown-content">
+                    <a href="factions.html">All Factions</a>
+                    <a href="set-fehu.html">Fehu</a>
+                    <a href="set-godrin.html">Godrin</a>
+                    <a href="set-braided.html">Braided</a>
+                </div>
+            </div>
+            <a href="vault.html">Vault</a>
+            <a href="whispers.html">Whispers</a>
+            <a href="learn-to-play.html">Learn to Play</a>
+            <div class="dropdown">
+                <a href="print-order.html">3D Prints</a>
+                <div class="dropdown-content">
+                    <a href="print-order.html">Order</a>
+                    <a href="print-gallery.html">Gallery</a>
+                    <a href="print-reviews.html">Reviews</a>
+                </div>
+            </div>
+            <a href="contact.html">Contact</a>
+            <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">Admin Portal</a>
+            <a href="login.html" id="authBtn" class="btn-login">Sign In</a>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <div class="page-header">
+            <h2>3D Print Orders</h2>
+            <p style="color: var(--text-secondary);">Custom prints, forged to order.</p>
+        </div>
+
+        <p class="print-intro">Send your print files or a source link. We'll reply with a price, timeline, and delivery plan — then you confirm.</p>
+
+        <form id="printOrderForm" class="print-form" enctype="multipart/form-data">
+            <div class="field-grid">
+                <label>
+                    Full name
+                    <input type="text" name="name" required>
+                </label>
+                <label>
+                    Email
+                    <input type="email" name="email" required>
+                </label>
+                <label>
+                    Phone
+                    <input type="tel" name="phone">
+                </label>
+                <label>
+                    Print type
+                    <select name="service" required>
+                        <option value="Custom 3D print">Custom 3D print</option>
+                        <option value="Multiple part print">Multiple part print</option>
+                        <option value="Prototype / test print">Prototype / test print</option>
+                        <option value="Bulk print order">Bulk print order</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </label>
+                <label>
+                    Desired deadline
+                    <input type="text" name="deadline" placeholder="Example: 3 days">
+                </label>
+            </div>
+
+            <label>
+                Upload your files or share a source link (unzip any zip files before uploading)
+                <input type="file" name="files" multiple>
+            </label>
+
+            <label>
+                Source link for the item or design
+                <input type="url" name="sourceLink" placeholder="https://...">
+            </label>
+
+            <label>
+                Notes for the order
+                <textarea name="notes" rows="5" placeholder="Tell us about size, color choice, print quality, and any special instructions."></textarea>
+            </label>
+
+            <div class="print-color-box">
+                <h4>Current PLA / PLA+ colors available</h4>
+                <div class="color-swatches" role="list" aria-label="Available colors">
+                    <label class="color-option"><input type="checkbox" name="colors" value="Baby Blue"> <span class="color-dot baby-blue"></span> Baby Blue</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Babygirl Pink"> <span class="color-dot babygirl-pink"></span> Babygirl Pink</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Black"> <span class="color-dot black"></span> Black</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Blue"> <span class="color-dot blue"></span> Blue</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Brown"> <span class="color-dot brown"></span> Brown</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Clear"> <span class="color-dot clear"></span> Clear</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Dark Blue"> <span class="color-dot dark-blue"></span> Dark Blue</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Dark Grey"> <span class="color-dot dark-grey"></span> Dark Grey</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Dandelion Yellow"> <span class="color-dot dandelion-yellow"></span> Dandelion Yellow</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Fire Engine Red"> <span class="color-dot fire-red"></span> Fire Engine Red</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Forest Green"> <span class="color-dot forest-green"></span> Forest Green</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Grey"> <span class="color-dot grey"></span> Grey</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Lime Green"> <span class="color-dot lime-green"></span> Lime Green</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Metallic Purple"> <span class="color-dot metallic-purple"></span> Metallic Purple</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Neon Green"> <span class="color-dot neon-green"></span> Neon Green</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Orange"> <span class="color-dot orange"></span> Orange</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Purple"> <span class="color-dot purple"></span> Purple</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Red"> <span class="color-dot red"></span> Red</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Rose Hot Pink"> <span class="color-dot rose-hot-pink"></span> Rose Hot Pink</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="White"> <span class="color-dot white"></span> White</label>
+                    <label class="color-option"><input type="checkbox" name="colors" value="Yellow"> <span class="color-dot yellow"></span> Yellow</label>
+                </div>
+            </div>
+
+            <label class="print-toggle-label">
+                <input type="checkbox" name="allowGalleryPost">
+                Allow us to post the completed print to the gallery (with your approval first)
+            </label>
+
+            <button class="button button--primary" type="submit">Send Order</button>
+            <p id="printFormStatus" class="print-form-status" role="status"></p>
+        </form>
+    </main>
+
+    <footer>
+        <p class="font-display">Kloak & Daggurrs</p>
+        <span>All secrets have a price.</span>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+    <script type="module">
+        import { initPrintOrderPage } from './js/print-order.js';
+        initPrintOrderPage();
+    </script>
+</body>
+</html>

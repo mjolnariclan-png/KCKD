@@ -1,0 +1,295 @@
+/* ============================================
+   3D PRINTS SECTION — styled to match K&D theme
+   ============================================ */
+
+.print-page {
+    background: var(--bg-primary);
+}
+
+.print-intro {
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+/* ---------- ORDER FORM ---------- */
+.print-form {
+    max-width: 700px;
+    margin: 0 auto 4rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.print-form .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.print-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--card-beige);
+}
+
+.print-color-box {
+    margin: 1rem 0 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background: rgba(96, 54, 170, 0.08);
+}
+
+.print-color-box h4 {
+    font-family: var(--font-display);
+    color: var(--card-lavender);
+    margin-bottom: 0.75rem;
+}
+
+.color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.color-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.color-option input {
+    width: auto;
+    margin: 0;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+.color-dot.black { background: #000; }
+.color-dot.white { background: #fff; }
+.color-dot.neon-green { background: #39ff14; }
+.color-dot.blue { background: #1e5fff; }
+.color-dot.yellow { background: #ffea00; }
+.color-dot.dandelion-yellow { background: #f2c94c; }
+.color-dot.fire-red { background: #ff2a00; }
+.color-dot.purple { background: #7a2cff; }
+.color-dot.brown { background: #7a3f12; }
+.color-dot.dark-grey { background: #4d4d4d; }
+.color-dot.baby-blue { background: #8ec5ff; }
+.color-dot.orange { background: #ff8c00; }
+.color-dot.lime-green { background: #8fd14f; }
+.color-dot.metallic-purple { background: #8b5cf6; }
+.color-dot.red { background: #ff001f; }
+.color-dot.grey { background: #8a8a8a; }
+.color-dot.forest-green { background: #1f6a3c; }
+.color-dot.babygirl-pink { background: #ff69b4; }
+.color-dot.clear { background: linear-gradient(135deg, #fff, #c7d2fe); }
+.color-dot.dark-blue { background: #0a2f7a; }
+.color-dot.rose-hot-pink { background: #ff4fa3; }
+
+.print-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 1rem 0 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.print-toggle-label input {
+    width: auto;
+}
+
+.print-form-status {
+    min-height: 1.5rem;
+    margin-top: 0.75rem;
+    color: var(--card-light-purple);
+    text-align: center;
+}
+
+/* ---------- GALLERY ---------- */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.gallery-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.gallery-card h3 {
+    font-family: var(--font-display);
+    color: var(--card-beige);
+    margin-bottom: 0.5rem;
+}
+
+.gallery-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* ---------- REVIEWS ---------- */
+.reviews-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.review-form-section,
+.reviews-list-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.review-form-section h3,
+.reviews-list-section h3 {
+    font-family: var(--font-display);
+    color: var(--card-lavender);
+    margin-bottom: 1.5rem;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.star {
+    cursor: pointer;
+    color: var(--spirit);
+    transition: all 0.2s ease;
+}
+
+.star:hover,
+.star.active {
+    color: var(--sun);
+    transform: scale(1.1);
+}
+
+.review-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.review-card:last-child {
+    margin-bottom: 0;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.5rem;
+}
+
+.review-name {
+    font-family: var(--font-display);
+    color: var(--card-light-purple);
+    margin: 0;
+}
+
+.review-stars {
+    color: var(--sun);
+}
+
+.review-date {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.review-text {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.no-reviews {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+}
+
+/* ---------- MODAL (gallery detail) ---------- */
+.print-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.print-modal.active {
+    display: flex;
+}
+
+.print-modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.print-modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--card-lavender);
+    font-size: 1.75rem;
+    cursor: pointer;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 1023px) {
+    .print-form .field-grid { grid-template-columns: 1fr; }
+    .reviews-split { grid-template-columns: 1fr; gap: 2rem; }
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}

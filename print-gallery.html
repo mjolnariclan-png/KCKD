@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faction Lore - Kloak & Daggurrs</title>
+    <title>Print Gallery - K&D</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Metamorphous&family=Cormorant+SC:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/locks.css">
-    <link rel="stylesheet" href="css/faction-lore.css">
+    <link rel="stylesheet" href="css/print.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="lore-page">
+<body class="print-page">
     <nav class="navbar">
         <a href="index.html" class="logo-link">
             <div class="logo font-display">Kloak & Daggurrs</div>
@@ -48,8 +47,24 @@
         </div>
     </nav>
 
-    <div id="contentContainer">
-        <!-- Content loaded dynamically from drops table -->
+    <main class="page-content">
+        <div class="page-header">
+            <h2>Print Gallery</h2>
+            <p style="color: var(--text-secondary);">Completed work, shared with permission.</p>
+        </div>
+
+        <div id="galleryContainer" class="gallery-grid">
+            <p style="color: var(--text-secondary); grid-column: 1/-1; text-align: center;">Loading gallery...</p>
+        </div>
+    </main>
+
+    <div id="printModal" class="print-modal">
+        <div class="print-modal-content">
+            <button class="print-modal-close" id="printModalClose">✕</button>
+            <img id="printModalImage" src="" alt="" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h2 id="printModalTitle" style="color: var(--card-lavender); margin-bottom: 1rem;"></h2>
+            <p id="printModalDescription" style="color: var(--text-secondary); line-height: 1.6;"></p>
+        </div>
     </div>
 
     <footer>
@@ -59,8 +74,8 @@
 
     <script type="module" src="js/app.js"></script>
     <script type="module">
-        import { loadFactionLore } from './js/faction-lore.js';
-        loadFactionLore();
+        import { initPrintGalleryPage } from './js/print-gallery.js';
+        initPrintGalleryPage();
     </script>
 </body>
 </html>

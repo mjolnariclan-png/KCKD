@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K&D Control</title>
+    <title>Admin Portal - K&D</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Metamorphous&family=Cormorant+SC:wght@600&display=swap" rel="stylesheet">
@@ -12,9 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <nav class="navbar admin-nav">
+    <nav class="navbar">
         <a href="index.html" class="logo-link">
-            <div class="logo font-display">K&D Control</div>
+            <div class="logo font-display">Kloak & Daggurrs</div>
         </a>
         <a href="index.html" class="nav-logo-right">
             <img src="assets/logo-icon.png" alt="K&D">
@@ -33,301 +33,467 @@
             <a href="vault.html">Vault</a>
             <a href="whispers.html">Whispers</a>
             <a href="learn-to-play.html">Learn to Play</a>
+            <div class="dropdown">
+                <a href="print-order.html">3D Prints</a>
+                <div class="dropdown-content">
+                    <a href="print-order.html">Order</a>
+                    <a href="print-gallery.html">Gallery</a>
+                    <a href="print-reviews.html">Reviews</a>
+                </div>
+            </div>
             <a href="contact.html">Contact</a>
             <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">Admin Portal</a>
             <a href="login.html" id="authBtn" class="btn-login">Sign In</a>
         </div>
     </nav>
 
-    <div class="admin-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1 class="font-display">Vault Control</h1>
-            <div id="adminStatus" class="loading">Checking access...</div>
-        </div>
-
-        <div id="loadingState" style="text-align: center; padding: 3rem;">
-            <p class="loading">Verifying credentials...</p>
-        </div>
-
-        <div id="loginForm" style="display: none; max-width: 400px; margin: 0 auto; text-align: center;">
-            <h3>Authentication Required</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Admin access only.</p>
-            <input type="email" id="loginEmail" placeholder="Email" style="width: 100%; margin: 0.5rem 0;">
-            <input type="password" id="loginPass" placeholder="Password" style="width: 100%; margin: 0.5rem 0;">
-            <button onclick="signInUser()" class="btn-save" style="width: 100%; margin-top: 1rem;">Sign In</button>
-            <a href="index.html" style="display: block; margin-top: 1rem; color: var(--text-secondary);">← Return to Site</a>
-        </div>
-
-        <div id="accessDenied" style="display: none; text-align: center; padding: 3rem;">
-            <h3 class="error">Access Denied</h3>
-            <p style="color: var(--text-secondary);">You do not have admin privileges.</p>
-            <a href="index.html" style="display: inline-block; margin-top: 1rem; color: var(--card-light-purple);">Return to Site</a>
-        </div>
-
-        <div id="adminPanel" style="display: none;">
-            <button onclick="showAddForm()" class="btn-add">+ Schedule New Drop</button>
-            
-            <div id="addForm" style="display: none; background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--accent);">
-                <h3 class="font-display">New Drop</h3>
-                <div class="form-grid">
-                    <input type="text" id="newTitle" placeholder="Title (e.g., Fehu, Godrin, Card #001)">
-                    <select id="newType">
-                        <option value="faction">Faction</option>
-                        <option value="vault">Vault Card</option>
-                        <option value="timeline">Timeline Event</option>
-                        <option value="hero">Hero Section</option>
-                        <option value="page">Page Release (Set Pages)</option>
-                        <option value="whisper">Whisper</option>
-                    </select>
-                    <div style="grid-column: span 2;">
-                        <label style="color: var(--text-secondary); font-size: 0.9rem;">Teaser Date (CST) - When preview appears:</label>
-                        <input type="datetime-local" id="newTeaserDate">
-                        <div class="timezone-note">All times are Central Standard Time (Iowa)</div>
-                    </div>
-                    <div style="grid-column: span 2;">
-                        <label style="color: var(--text-secondary); font-size: 0.9rem;">Official Drop Date (CST) - When fully unlocked:</label>
-                        <input type="datetime-local" id="newDropDate">
-                    </div>
-                    <input type="text" id="newImage" placeholder="Image path or hex color (#8B4513)" value="assets/cards/card-back.png">
-                    <input type="number" id="newBlur" placeholder="Blur px" value="8">
-                    <input type="number" id="newOrder" placeholder="Sort Order" value="0">
-                    <textarea id="newDesc" placeholder="Description / Lore / Tagline" style="grid-column: span 2;" rows="4"></textarea>
-                    <textarea id="newStory" placeholder="Full Story Content (HTML supported)" style="grid-column: span 2;" rows="6"></textarea>
-                </div>
-                <button onclick="addDrop()" class="btn-save" style="margin-top: 1rem;">Create Drop</button>
-                <button onclick="hideAddForm()" style="margin-left: 1rem;">Cancel</button>
-            </div>
-
-            <div id="dropsList"></div>
-        </div>
+    <div id="adminGate" class="admin-gate">
+        <p>Checking access...</p>
     </div>
 
+    <div id="adminRoot" class="admin-container" style="display: none;">
+
+        <!-- ================= DROPS MANAGEMENT ================= -->
+        <section>
+            <h2 class="font-display" style="color: var(--card-lavender);">Drops</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Factions, vault cards, timeline events, and set-page unlocks.</p>
+            <button class="btn-add" id="newDropBtn">+ New Drop</button>
+            <div id="dropForm" style="display:none;" class="drop-card">
+                <h3 id="dropFormTitle" class="font-display" style="color: var(--card-beige);">New Drop</h3>
+                <input type="hidden" id="dropId">
+                <div class="form-grid">
+                    <label>Title
+                        <input type="text" id="dropTitle">
+                    </label>
+                    <label>Type
+                        <select id="dropType">
+                            <option value="faction">faction</option>
+                            <option value="vault">vault</option>
+                            <option value="timeline">timeline</option>
+                            <option value="hero">hero</option>
+                            <option value="page">page</option>
+                            <option value="whisper">whisper</option>
+                        </select>
+                    </label>
+                    <label>Faction ID (optional, links a card/event to a faction drop)
+                        <input type="text" id="dropFactionId" placeholder="uuid of a faction drop">
+                    </label>
+                    <label>Sort Order
+                        <input type="number" id="dropSortOrder" value="0">
+                    </label>
+                    <label>Image URL / hex color
+                        <input type="text" id="dropImageUrl" placeholder="#8B4513 or /assets/...">
+                    </label>
+                    <label>Blur Level
+                        <input type="number" id="dropBlurLevel" value="0">
+                    </label>
+                    <label>Teaser At
+                        <input type="datetime-local" id="dropTeaserAt">
+                        <span class="timezone-note">Times are entered/shown in CST</span>
+                    </label>
+                    <label>Unlock At
+                        <input type="datetime-local" id="dropUnlockAt">
+                        <span class="timezone-note">Times are entered/shown in CST</span>
+                    </label>
+                </div>
+                <label>Description / Tagline
+                    <input type="text" id="dropDescription">
+                </label>
+                <label>Story Content (HTML)
+                    <textarea id="dropStoryContent" rows="6"></textarea>
+                </label>
+                <label style="flex-direction: row; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="dropIsVisible" checked style="width:auto;"> Visible
+                </label>
+                <div style="display:flex; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn-save" id="saveDropBtn">Save Drop</button>
+                    <button class="btn-delete" id="cancelDropBtn" type="button">Cancel</button>
+                </div>
+            </div>
+            <div id="dropsList"><p style="color: var(--text-secondary);">Loading drops...</p></div>
+        </section>
+
+        <!-- ================= 3D PRINT ORDERS ================= -->
+        <section style="margin-top: 4rem;">
+            <h2 class="font-display" style="color: var(--card-lavender);">3D Print Orders</h2>
+            <div class="admin-tabs" role="tablist">
+                <button class="admin-tab-button active" data-tab-target="tab-not-completed">Not Completed</button>
+                <button class="admin-tab-button" data-tab-target="tab-gallery-needed">Completed — Gallery Needed</button>
+                <button class="admin-tab-button" data-tab-target="tab-fully-completed">Fully Completed</button>
+            </div>
+            <div id="tab-not-completed" class="admin-tab-panel active">
+                <div id="orders-not-completed" class="orders-list"><p style="color: var(--text-secondary);">Loading orders...</p></div>
+            </div>
+            <div id="tab-gallery-needed" class="admin-tab-panel">
+                <div id="orders-gallery-needed" class="orders-list"><p style="color: var(--text-secondary);">Loading orders...</p></div>
+            </div>
+            <div id="tab-fully-completed" class="admin-tab-panel">
+                <div id="orders-fully-completed" class="orders-list"><p style="color: var(--text-secondary);">Loading orders...</p></div>
+            </div>
+        </section>
+
+        <!-- ================= GALLERY POSTS ================= -->
+        <section style="margin-top: 4rem;">
+            <h2 class="font-display" style="color: var(--card-lavender);">Gallery Posts</h2>
+            <div id="gallery-posts" class="gallery-posts-list"><p style="color: var(--text-secondary);">Loading gallery posts...</p></div>
+        </section>
+
+        <!-- ================= REVIEWS MODERATION ================= -->
+        <section style="margin-top: 4rem;">
+            <h2 class="font-display" style="color: var(--card-lavender);">Print Reviews</h2>
+            <div id="reviews-mod-list"><p style="color: var(--text-secondary);">Loading reviews...</p></div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p class="font-display">Kloak & Daggurrs</p>
+        <span>All secrets have a price.</span>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
     <script type="module">
-        import { signIn, signOut, isAdmin, getAllDropsAdmin, updateDrop, createDrop, deleteDrop, supabase, formatForDateTimeLocal, formatDisplayDate, nowInCST, inputToUTC } from './js/supabase.js';
+        import {
+            isAdmin, formatForDateTimeLocal, formatDisplayDate, inputToUTC,
+            getAllDropsAdmin, createDrop, updateDrop, deleteDrop,
+            getOrdersAdmin, updateOrderStatus,
+            getGalleryPosts, addGalleryPost, deleteGalleryPost,
+            getReviews, deleteReview,
+            uploadPrintFile, resolveImageUrl
+        } from './js/supabase.js';
 
-        async function checkAuth() {
+        async function boot() {
+            const admin = await isAdmin();
+            const gate = document.getElementById('adminGate');
+            const root = document.getElementById('adminRoot');
+
+            if (!admin) {
+                gate.innerHTML = '<p>You must be signed in as an admin to view this page. <a href="login.html">Sign in</a></p>';
+                return;
+            }
+
+            gate.style.display = 'none';
+            root.style.display = 'block';
+
+            initDropsSection();
+            loadOrdersWorkflow();
+            loadGalleryPosts();
+            loadReviewsModeration();
+            setupTabs();
+        }
+
+        // ================= TABS =================
+        function setupTabs() {
+            document.querySelectorAll('.admin-tab-button').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.admin-tab-button').forEach((b) => b.classList.remove('active'));
+                    document.querySelectorAll('.admin-tab-panel').forEach((p) => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tabTarget).classList.add('active');
+                });
+            });
+        }
+
+        // ================= DROPS =================
+        function initDropsSection() {
+            const newDropBtn = document.getElementById('newDropBtn');
+            const dropForm = document.getElementById('dropForm');
+            const cancelDropBtn = document.getElementById('cancelDropBtn');
+            const saveDropBtn = document.getElementById('saveDropBtn');
+
+            newDropBtn.addEventListener('click', () => openDropForm(null));
+            cancelDropBtn.addEventListener('click', () => { dropForm.style.display = 'none'; });
+            saveDropBtn.addEventListener('click', saveDrop);
+
+            loadDrops();
+        }
+
+        function openDropForm(drop) {
+            document.getElementById('dropForm').style.display = 'block';
+            document.getElementById('dropFormTitle').textContent = drop ? 'Edit Drop' : 'New Drop';
+            document.getElementById('dropId').value = drop?.id || '';
+            document.getElementById('dropTitle').value = drop?.title || '';
+            document.getElementById('dropType').value = drop?.drop_type || 'faction';
+            document.getElementById('dropFactionId').value = drop?.faction_id || '';
+            document.getElementById('dropSortOrder').value = drop?.sort_order ?? 0;
+            document.getElementById('dropImageUrl').value = drop?.image_url || '';
+            document.getElementById('dropBlurLevel').value = drop?.blur_level ?? 0;
+            document.getElementById('dropTeaserAt').value = drop?.teaser_at ? formatForDateTimeLocal(new Date(drop.teaser_at)) : '';
+            document.getElementById('dropUnlockAt').value = drop?.unlock_at ? formatForDateTimeLocal(new Date(drop.unlock_at)) : '';
+            document.getElementById('dropDescription').value = drop?.description || '';
+            document.getElementById('dropStoryContent').value = drop?.story_content || '';
+            document.getElementById('dropIsVisible').checked = drop ? !!drop.is_visible : true;
+        }
+
+        async function saveDrop() {
+            const id = document.getElementById('dropId').value;
+            const payload = {
+                title: document.getElementById('dropTitle').value.trim(),
+                drop_type: document.getElementById('dropType').value,
+                faction_id: document.getElementById('dropFactionId').value.trim() || null,
+                sort_order: Number(document.getElementById('dropSortOrder').value) || 0,
+                image_url: document.getElementById('dropImageUrl').value.trim() || null,
+                blur_level: Number(document.getElementById('dropBlurLevel').value) || 0,
+                teaser_at: document.getElementById('dropTeaserAt').value ? inputToUTC(document.getElementById('dropTeaserAt').value) : null,
+                unlock_at: document.getElementById('dropUnlockAt').value ? inputToUTC(document.getElementById('dropUnlockAt').value) : null,
+                description: document.getElementById('dropDescription').value.trim() || null,
+                story_content: document.getElementById('dropStoryContent').value || null,
+                is_visible: document.getElementById('dropIsVisible').checked
+            };
+
             try {
-                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                
-                if (sessionError || !session) {
-                    showLogin();
-                    return;
-                }
-
-                const admin = await isAdmin();
-                if (admin) {
-                    showAdminPanel();
-                    loadDrops();
-                } else {
-                    showAccessDenied();
-                }
-            } catch (err) {
-                console.error('Auth check failed:', err);
-                showLogin();
+                const { error } = id ? await updateDrop(id, payload) : await createDrop(payload);
+                if (error) throw error;
+                document.getElementById('dropForm').style.display = 'none';
+                loadDrops();
+            } catch (error) {
+                alert('Error saving drop: ' + error.message);
             }
-        }
-
-        function showLoading() {
-            document.getElementById('loadingState').style.display = 'block';
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('accessDenied').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'none';
-        }
-
-        function showLogin() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('accessDenied').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('adminStatus').innerHTML = '<span class="error">Not signed in</span>';
-        }
-
-        function showAccessDenied() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('accessDenied').style.display = 'block';
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('adminStatus').innerHTML = '<span class="error">Access Denied</span>';
-        }
-
-        function showAdminPanel() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('accessDenied').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('adminStatus').innerHTML = '<span style="color: var(--fungus)">Access Granted</span>';
-            
-            const authBtn = document.getElementById('authBtn');
-            if (authBtn) {
-                authBtn.textContent = 'Sign Out';
-                authBtn.href = '#';
-                authBtn.onclick = async (e) => {
-                    e.preventDefault();
-                    await signOut();
-                    window.location.href = 'index.html';
-                };
-            }
-        }
-
-        window.signInUser = async () => {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            showLoading();
-            const { error } = await signIn(email, pass);
-            if (error) {
-                alert('Access denied: ' + error.message);
-                showLogin();
-            } else {
-                await checkAuth();
-            }
-        };
-
-        function getStatus(drop) {
-            const now = nowInCST();
-            const teaser = new Date(drop.teaser_at);
-            const unlock = new Date(drop.unlock_at);
-            
-            if (!drop.is_visible) return { text: 'HIDDEN', class: 'status-hidden' };
-            if (now >= unlock) return { text: 'UNLOCKED', class: 'status-unlocked' };
-            if (now >= teaser) return { text: 'TEASER', class: 'status-teaser' };
-            return { text: 'LOCKED', class: 'status-locked' };
         }
 
         async function loadDrops() {
-            const drops = await getAllDropsAdmin();
             const container = document.getElementById('dropsList');
-            
-            if (!drops || drops.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No drops scheduled.</p>';
-                return;
+            try {
+                const drops = await getAllDropsAdmin();
+                if (!drops || drops.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">No drops yet.</p>';
+                    return;
+                }
+                container.innerHTML = drops.map((drop) => `
+                    <div class="drop-card">
+                        <h4 style="color: var(--card-beige); font-family: var(--font-display);">${drop.title} <span style="color: var(--text-secondary); font-size: 0.8rem;">(${drop.drop_type})</span></h4>
+                        <p class="date-display">Teaser: ${formatDisplayDate(drop.teaser_at)}</p>
+                        <p class="date-display">Unlock: ${formatDisplayDate(drop.unlock_at)}</p>
+                        <p class="date-display">Visible: ${drop.is_visible ? 'Yes' : 'No'}</p>
+                        <div style="display:flex; gap: 0.75rem; margin-top: 1rem;">
+                            <button class="btn-save" onclick='window.__editDrop(${JSON.stringify(drop.id)})'>Edit</button>
+                            <button class="btn-delete" onclick='window.__deleteDrop(${JSON.stringify(drop.id)})'>Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                window.__editDrop = (id) => {
+                    const drop = drops.find((d) => d.id === id);
+                    openDropForm(drop);
+                    window.scrollTo({ top: document.getElementById('dropForm').offsetTop - 100, behavior: 'smooth' });
+                };
+                window.__deleteDrop = async (id) => {
+                    if (!confirm('Delete this drop?')) return;
+                    const { error } = await deleteDrop(id);
+                    if (error) { alert('Error deleting: ' + error.message); return; }
+                    loadDrops();
+                };
+            } catch (error) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Error loading drops.</p>';
             }
-            
-            container.innerHTML = drops.map(drop => {
-                const status = getStatus(drop);
-                
-                return `
-                <div class="drop-card" data-id="${drop.id}">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                        <h4 class="font-display">${drop.title} <span class="status-badge ${status.class}">${status.text}</span></h4>
-                        <button onclick="deleteThis('${drop.id}')" class="btn-delete">Delete</button>
-                    </div>
-                    <div class="form-grid">
-                        <input type="text" class="edit-title" value="${drop.title}">
-                        <select class="edit-type">
-                            <option value="faction" ${drop.drop_type === 'faction' ? 'selected' : ''}>Faction</option>
-                            <option value="vault" ${drop.drop_type === 'vault' ? 'selected' : ''}>Vault</option>
-                            <option value="timeline" ${drop.drop_type === 'timeline' ? 'selected' : ''}>Timeline</option>
-                            <option value="hero" ${drop.drop_type === 'hero' ? 'selected' : ''}>Hero</option>
-                            <option value="page" ${drop.drop_type === 'page' ? 'selected' : ''}>Page Release</option>
-                            <option value="whisper" ${drop.drop_type === 'whisper' ? 'selected' : ''}>Whisper</option>
-                        </select>
-                        <div style="grid-column: span 2;">
-                            <label style="color: var(--text-secondary); font-size: 0.85rem;">Teaser Date (CST):</label>
-                            <input type="datetime-local" class="edit-teaser" value="${drop.teaser_at ? formatForDateTimeLocal(new Date(drop.teaser_at)) : ''}">
-                            <div class="date-display">Current: ${drop.teaser_at ? formatDisplayDate(drop.teaser_at) : 'Not set'}</div>
-                        </div>
-                        <div style="grid-column: span 2;">
-                            <label style="color: var(--text-secondary); font-size: 0.85rem;">Official Drop Date (CST):</label>
-                            <input type="datetime-local" class="edit-date" value="${drop.unlock_at ? formatForDateTimeLocal(new Date(drop.unlock_at)) : ''}">
-                            <div class="date-display">Current: ${drop.unlock_at ? formatDisplayDate(drop.unlock_at) : 'Not set'}</div>
-                        </div>
-                        <input type="text" class="edit-image" value="${drop.image_url || ''}" placeholder="Image path or hex color">
-                        <input type="number" class="edit-blur" value="${drop.blur_level || 0}">
-                        <input type="number" class="edit-order" value="${drop.sort_order || 0}">
-                        <label style="grid-column: span 2;">
-                            <input type="checkbox" class="edit-visible" ${drop.is_visible ? 'checked' : ''}> Visible on site
-                        </label>
-                        <textarea class="edit-desc" style="grid-column: span 2;" rows="3" placeholder="Description / Tagline">${drop.description || ''}</textarea>
-                        <textarea class="edit-story" style="grid-column: span 2;" rows="4" placeholder="Full Story Content (HTML)">${drop.story_content || ''}</textarea>
-                    </div>
-                    <button onclick="saveThis('${drop.id}')" class="btn-save" style="margin-top: 1rem;">Save Changes</button>
-                </div>
-                `;
-            }).join('');
         }
 
-        window.saveThis = async (id) => {
-            const card = document.querySelector(`[data-id="${id}"]`);
-            const teaserVal = card.querySelector('.edit-teaser').value;
-            const unlockVal = card.querySelector('.edit-date').value;
-            
-            const updates = {
-                title: card.querySelector('.edit-title').value,
-                drop_type: card.querySelector('.edit-type').value,
-                teaser_at: inputToUTC(teaserVal),
-                unlock_at: inputToUTC(unlockVal),
-                image_url: card.querySelector('.edit-image').value,
-                blur_level: parseInt(card.querySelector('.edit-blur').value),
-                sort_order: parseInt(card.querySelector('.edit-order').value),
-                is_visible: card.querySelector('.edit-visible').checked,
-                description: card.querySelector('.edit-desc').value,
-                story_content: card.querySelector('.edit-story').value
-            };
-            
-            console.log('Saving updates:', updates);
-            
-            const { error } = await updateDrop(id, updates);
-            if (error) alert('Error: ' + error.message);
-            else { 
-                alert('Updated!'); 
-                loadDrops(); 
+        // ================= 3D PRINT ORDERS =================
+        async function buildOrderCard(order, options) {
+            const filesHtml = (order.file_paths || []).length
+                ? `<div class="order-info"><strong>Files:</strong> ${(order.file_names || []).join(', ')}</div>`
+                : '';
+
+            const galleryFormHtml = options.showGalleryForm ? `
+                <div class="gallery-form">
+                    <h5 style="color: var(--card-beige);">Add to Gallery</h5>
+                    <label>Title <input type="text" class="gallery-title" value="${order.name || ''}"></label>
+                    <label>Description <textarea class="gallery-description">${order.notes || ''}</textarea></label>
+                    <label>Upload Image <input type="file" class="gallery-image-file" accept="image/*"></label>
+                    <label>Image URL (or use upload above) <input type="url" class="gallery-image" placeholder="https://..."></label>
+                    <button class="btn-save button-small" onclick="window.__addToGallery('${order.id}', this)">Add to Gallery</button>
+                </div>
+            ` : '';
+
+            const completeToggle = options.showCompleteToggle ? `
+                <div class="order-status">
+                    <input type="checkbox" class="order-complete-checkbox" data-order-id="${order.id}" ${order.status === 'completed' ? 'checked' : ''}>
+                    <label>Mark completed</label>
+                </div>
+            ` : '';
+
+            const reopenToggle = options.showReopenToggle ? `
+                <div class="order-status">
+                    <input type="checkbox" class="order-reopen-checkbox" data-order-id="${order.id}" checked>
+                    <label>Completed (uncheck to reopen)</label>
+                </div>
+            ` : '';
+
+            return `
+                <div class="order-card" data-order-id="${order.id}">
+                    <h4>${order.name} — ${order.service || ''}</h4>
+                    <div class="order-info"><strong>Email:</strong> <a href="mailto:${order.email}">${order.email}</a></div>
+                    <div class="order-info"><strong>Phone:</strong> ${order.phone || 'Not provided'}</div>
+                    <div class="order-info"><strong>Deadline:</strong> ${order.deadline || 'Flexible'}</div>
+                    <div class="order-info"><strong>Colors:</strong> ${(order.selected_colors || []).join(', ') || 'None specified'}</div>
+                    <div class="order-info"><strong>Notes:</strong> ${order.notes || 'None'}</div>
+                    ${filesHtml}
+                    ${completeToggle}
+                    ${reopenToggle}
+                    ${galleryFormHtml}
+                </div>
+            `;
+        }
+
+        async function renderOrdersInto(containerId, orders, options = {}) {
+            const container = document.getElementById(containerId);
+            if (!orders || orders.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No orders in this tab.</p>';
+                return;
+            }
+            const cards = await Promise.all(orders.map((o) => buildOrderCard(o, options)));
+            container.innerHTML = cards.join('');
+        }
+
+        async function loadOrdersWorkflow() {
+            try {
+                const orders = await getOrdersAdmin();
+                const galleryPosts = await getGalleryPosts();
+                const postedOrderIds = new Set((galleryPosts || []).map((p) => String(p.order_id)).filter(Boolean));
+
+                const allOrders = orders.map((o) => ({ ...o, is_posted_to_gallery: postedOrderIds.has(String(o.id)) }));
+
+                const notCompleted = allOrders.filter((o) => o.status !== 'completed');
+                const completedNeedsGallery = allOrders.filter((o) => o.status === 'completed' && o.allow_gallery_post && !o.is_posted_to_gallery);
+                const fullyCompleted = allOrders.filter((o) => o.status === 'completed' && (!o.allow_gallery_post || o.is_posted_to_gallery));
+
+                await renderOrdersInto('orders-not-completed', notCompleted, { showCompleteToggle: true });
+                await renderOrdersInto('orders-gallery-needed', completedNeedsGallery, { showGalleryForm: true, showReopenToggle: true });
+                await renderOrdersInto('orders-fully-completed', fullyCompleted, { showReopenToggle: true });
+
+                setupOrderHandlers();
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        function setupOrderHandlers() {
+            document.querySelectorAll('.gallery-image-file').forEach((fileInput) => {
+                fileInput.addEventListener('change', async (e) => {
+                    if (e.target.files.length === 0) return;
+                    const file = e.target.files[0];
+                    const card = fileInput.closest('.order-card');
+                    const imageInput = card.querySelector('.gallery-image');
+                    try {
+                        const filePath = await uploadPrintFile(file, 'gallery');
+                        imageInput.value = `print-uploads:${filePath}`;
+                    } catch (error) {
+                        alert('Upload failed: ' + error.message);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.order-complete-checkbox, .order-reopen-checkbox').forEach((checkbox) => {
+                checkbox.addEventListener('change', async (e) => {
+                    const orderId = e.target.dataset.orderId;
+                    const status = e.target.checked ? 'completed' : 'new';
+                    const { error } = await updateOrderStatus(orderId, status);
+                    if (error) { alert('Error updating status: ' + error.message); return; }
+                    loadOrdersWorkflow();
+                });
+            });
+        }
+
+        window.__addToGallery = async (orderId, button) => {
+            const card = button.closest('.order-card');
+            const title = card.querySelector('.gallery-title').value;
+            const description = card.querySelector('.gallery-description').value;
+            const imageRef = card.querySelector('.gallery-image').value;
+
+            if (!title || !imageRef) {
+                alert('Please fill in title and image');
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = 'Adding...';
+
+            try {
+                const { error } = await addGalleryPost({
+                    order_id: orderId,
+                    title,
+                    description,
+                    image_url: imageRef,
+                    created_at: new Date().toISOString()
+                });
+                if (error) throw error;
+                alert('Added to gallery!');
+                loadOrdersWorkflow();
+                loadGalleryPosts();
+            } catch (error) {
+                alert('Error adding to gallery: ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Add to Gallery';
             }
         };
 
-        window.deleteThis = async (id) => {
-            if (!confirm('Delete this drop?')) return;
-            const { error } = await deleteDrop(id);
-            if (error) alert('Error: ' + error.message);
-            else loadDrops();
-        };
+        // ================= GALLERY POSTS =================
+        async function loadGalleryPosts() {
+            const container = document.getElementById('gallery-posts');
+            try {
+                const posts = await getGalleryPosts();
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">No gallery posts yet.</p>';
+                    return;
+                }
+                const postsWithUrls = await Promise.all(posts.map(async (post) => ({
+                    ...post,
+                    resolved_image_url: await resolveImageUrl(post.image_url)
+                })));
+                container.innerHTML = postsWithUrls.map((post) => `
+                    <div class="gallery-post-card">
+                        <img src="${post.resolved_image_url || post.image_url}" alt="${post.title}" onerror="this.style.display='none'">
+                        <h5 style="color: var(--card-beige);">${post.title}</h5>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${post.description || 'No description'}</p>
+                        <button class="btn-delete button-small" onclick="window.__deleteGalleryPost(${post.id})">Delete</button>
+                    </div>
+                `).join('');
 
-        window.showAddForm = () => {
-            document.getElementById('addForm').style.display = 'block';
-            const nowCST = formatForDateTimeLocal(nowInCST());
-            document.getElementById('newTeaserDate').value = nowCST;
-            document.getElementById('newDropDate').value = nowCST;
-        };
-        
-        window.hideAddForm = () => document.getElementById('addForm').style.display = 'none';
-
-        window.addDrop = async () => {
-            const teaserVal = document.getElementById('newTeaserDate').value;
-            const dropVal = document.getElementById('newDropDate').value;
-            
-            const drop = {
-                title: document.getElementById('newTitle').value,
-                drop_type: document.getElementById('newType').value,
-                teaser_at: inputToUTC(teaserVal),
-                unlock_at: inputToUTC(dropVal),
-                image_url: document.getElementById('newImage').value,
-                blur_level: parseInt(document.getElementById('newBlur').value),
-                sort_order: parseInt(document.getElementById('newOrder').value),
-                description: document.getElementById('newDesc').value,
-                story_content: document.getElementById('newStory').value,
-                is_visible: true
-            };
-            
-            console.log('Creating drop:', drop);
-            
-            const { error } = await createDrop(drop);
-            if (error) alert('Error: ' + error.message);
-            else { 
-                hideAddForm(); 
-                loadDrops(); 
+                window.__deleteGalleryPost = async (id) => {
+                    if (!confirm('Delete this gallery post?')) return;
+                    const { error } = await deleteGalleryPost(id);
+                    if (error) { alert('Error deleting: ' + error.message); return; }
+                    loadGalleryPosts();
+                    loadOrdersWorkflow();
+                };
+            } catch (error) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Error loading gallery posts.</p>';
             }
-        };
+        }
 
-        window.toggleNav = () => {
-            document.getElementById('navLinks').classList.toggle('active');
-        };
+        // ================= REVIEWS MODERATION =================
+        async function loadReviewsModeration() {
+            const container = document.getElementById('reviews-mod-list');
+            try {
+                const reviews = await getReviews();
+                if (!reviews || reviews.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">No reviews yet.</p>';
+                    return;
+                }
+                container.innerHTML = reviews.map((review) => `
+                    <div class="review-mod-card">
+                        <div>
+                            <strong style="color: var(--card-beige);">${review.customer_name}</strong>
+                            <span style="color: var(--sun);">${'⭐'.repeat(review.rating)}</span>
+                            <p style="color: var(--text-secondary); margin: 0.5rem 0 0;">${review.review_text}</p>
+                        </div>
+                        <button class="btn-delete button-small" onclick="window.__deleteReview(${review.id})">Delete</button>
+                    </div>
+                `).join('');
 
-        checkAuth();
-        
-        supabase.auth.onAuthStateChange((event) => {
-            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                checkAuth();
+                window.__deleteReview = async (id) => {
+                    if (!confirm('Delete this review?')) return;
+                    const { error } = await deleteReview(id);
+                    if (error) { alert('Error deleting: ' + error.message); return; }
+                    loadReviewsModeration();
+                };
+            } catch (error) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Error loading reviews.</p>';
             }
-        });
+        }
+
+        boot();
     </script>
 </body>
 </html>

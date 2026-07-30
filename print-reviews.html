@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faction Lore - Kloak & Daggurrs</title>
+    <title>Print Reviews - K&D</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Metamorphous&family=Cormorant+SC:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/locks.css">
-    <link rel="stylesheet" href="css/faction-lore.css">
+    <link rel="stylesheet" href="css/print.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="lore-page">
+<body class="print-page">
     <nav class="navbar">
         <a href="index.html" class="logo-link">
             <div class="logo font-display">Kloak & Daggurrs</div>
@@ -48,9 +47,48 @@
         </div>
     </nav>
 
-    <div id="contentContainer">
-        <!-- Content loaded dynamically from drops table -->
-    </div>
+    <main class="page-content">
+        <div class="page-header">
+            <h2>Print Reviews</h2>
+            <p style="color: var(--text-secondary);">What customers are saying.</p>
+        </div>
+
+        <div class="reviews-split">
+            <div class="review-form-section">
+                <h3>Leave a Review</h3>
+                <form id="printReviewForm">
+                    <label>
+                        Your Name
+                        <input type="text" id="printReviewName" name="name" required placeholder="What should we call you?">
+                    </label>
+
+                    <div class="star-rating" id="printStarRating">
+                        <span class="star" data-rating="1">⭐</span>
+                        <span class="star" data-rating="2">⭐</span>
+                        <span class="star" data-rating="3">⭐</span>
+                        <span class="star" data-rating="4">⭐</span>
+                        <span class="star" data-rating="5">⭐</span>
+                    </div>
+                    <input type="hidden" id="printReviewRating" name="rating" value="0" required>
+
+                    <label>
+                        Your Review
+                        <textarea id="printReviewText" name="review" rows="5" required placeholder="Share your experience..."></textarea>
+                    </label>
+
+                    <button type="submit" class="button button--primary">Submit Review</button>
+                    <p id="printReviewStatus" class="print-form-status" role="status"></p>
+                </form>
+            </div>
+
+            <div class="reviews-list-section">
+                <h3>What Customers Say</h3>
+                <div id="printReviewsList">
+                    <div class="no-reviews">Loading reviews...</div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <footer>
         <p class="font-display">Kloak & Daggurrs</p>
@@ -59,8 +97,8 @@
 
     <script type="module" src="js/app.js"></script>
     <script type="module">
-        import { loadFactionLore } from './js/faction-lore.js';
-        loadFactionLore();
+        import { initPrintReviewsPage } from './js/print-reviews.js';
+        initPrintReviewsPage();
     </script>
 </body>
 </html>

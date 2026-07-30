@@ -1,5 +1,5 @@
-const SUPABASE_URL = 'https://egpujmjpmeuhiostfrnu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVncHVqbWpwbWV1aGlvc3Rmcm51Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTI2NjUzOCwiZXhwIjoyMTAwODQyNTM4fQ.MFBJkGcijC8Fm4RaOQOscjXfNx09zC0wn3VpIglFrEg';
+const SUPABASE_URL = 'https://dhzrhgyjpqotoujfwdwl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoenJoZ3lqcHFvdG91amZ3ZHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzOTk0MzcsImV4cCI6MjA5OTk3NTQzN30.rK02i_fFqcsZO6s9TCy-WUhXYic7Gg7p1Lrfrdu0qqI';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -261,6 +261,101 @@ function getDropStatus(drop) {
     return { text: 'LOCKED', class: 'status-locked', state: 'locked' };
 }
 
+// ========== 3D PRINT: ORDERS ==========
+
+async function createOrder(order) {
+    return await supabase.from('orders').insert([order]);
+}
+
+async function getOrdersAdmin() {
+    const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+    if (error) console.error(error);
+    return data || [];
+}
+
+async function updateOrderStatus(id, status) {
+    return await supabase.from('orders').update({ status }).eq('id', id);
+}
+
+// ========== 3D PRINT: GALLERY ==========
+
+async function getGalleryPosts() {
+    const { data, error } = await supabase
+        .from('gallery_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+    if (error) console.error(error);
+    return data || [];
+}
+
+async function addGalleryPost(post) {
+    return await supabase.from('gallery_posts').insert([post]);
+}
+
+async function deleteGalleryPost(id) {
+    return await supabase.from('gallery_posts').delete().eq('id', id);
+}
+
+// ========== 3D PRINT: REVIEWS ==========
+
+async function getReviews() {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+    if (error) console.error(error);
+    return data || [];
+}
+
+async function addReview(review) {
+    return await supabase.from('reviews').insert([review]);
+}
+
+async function deleteReview(id) {
+    return await supabase.from('reviews').delete().eq('id', id);
+}
+
+// ========== 3D PRINT: STORAGE ==========
+
+async function uploadPrintFile(file, folder = 'orders') {
+    const filePath = `${folder}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+    const { error } = await supabase.storage.from('print-uploads').upload(filePath, file);
+    if (error) throw error;
+    return filePath;
+}
+
+async function resolveImageUrl(imageRef) {
+    if (!imageRef) return '';
+    const value = String(imageRef).trim();
+    if (!value) return '';
+
+    const customPrefix = 'print-uploads:';
+    const publicPrefix = `${SUPABASE_URL}/storage/v1/object/public/print-uploads/`;
+    let filePath = '';
+
+    if (value.startsWith(customPrefix)) {
+        filePath = value.slice(customPrefix.length);
+    } else if (value.startsWith(publicPrefix)) {
+        filePath = decodeURIComponent(value.slice(publicPrefix.length));
+    } else if (/^https?:\/\//i.test(value)) {
+        return value;
+    } else {
+        filePath = value.replace(/^\/+/, '');
+    }
+
+    const { data, error } = await supabase.storage
+        .from('print-uploads')
+        .createSignedUrl(filePath, 60 * 60 * 24 * 7);
+
+    if (!error && data?.signedUrl) return data.signedUrl;
+
+    const { data: publicData } = supabase.storage.from('print-uploads').getPublicUrl(filePath);
+    return publicData?.publicUrl || value;
+}
+
 // ========== EXPORTS ==========
 
 export { 
@@ -271,5 +366,9 @@ export {
     getFactions, getFaction, updateFaction, getFactionDrops,
     getWhispers, getWhisperTeasers,
     getDropStatus, nowInCST, formatForDateTimeLocal, 
-    formatDisplayDate, inputToUTC
+    formatDisplayDate, inputToUTC,
+    createOrder, getOrdersAdmin, updateOrderStatus,
+    getGalleryPosts, addGalleryPost, deleteGalleryPost,
+    getReviews, addReview, deleteReview,
+    uploadPrintFile, resolveImageUrl
 };
