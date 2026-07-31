@@ -168,18 +168,6 @@
            Replace YOUR_PROJECT_REF with your actual Supabase project ref.
            If your bucket is not named 'print-uploads', change that too.
            ============================================================ */
-        async function getPrintFileUrl(filePath) {
-            if (!filePath) return '#';
-            if (filePath.startsWith('http')) return filePath;
-            // Public URL pattern — swap YOUR_PROJECT_REF for your real one
-            return `https://dhzrhgyjpqotoujfwdwl.supabase.co/storage/v1/object/public/print-uploads/${filePath}`;
-            /*
-            // SIGNED URL version (more secure) — add to supabase.js instead:
-            const { data, error } = await supabase.storage.from('print-uploads').createSignedUrl(filePath, 3600);
-            if (error) throw error;
-            return data.signedUrl;
-            */
-        }
 
         async function boot() {
             const admin = await isAdmin();
@@ -338,8 +326,8 @@
                 const fileLinks = await Promise.all(filePaths.map(async (fp, i) => {
                     const fname = fileNames[i] || fp;
                     let url = '#';
-                    try { url = await getPrintFileUrl(fp); } catch (e) { console.error(e); }
-                    return `<a href="${url}" download class="file-link" title="Download ${fname}">📎 ${fname}</a>`;
+                    try { url = await resolveImageUrl(fp); } catch (e) { console.error(e); }
+                    return `<a href="${url || '#'}" target="_blank" class="file-link" title="Download ${fname}">📎 ${fname}</a>`;
                 }));
                 filesHtml = `<div class="order-info"><strong>Files:</strong><div class="file-list">${fileLinks.join('')}</div></div>`;
             }
