@@ -13,16 +13,22 @@ export function initPrintOrderPage() {
         if (!files || files.length === 0) return [];
         const uploaded = [];
         for (const file of files) {
+            // Skip empty entries
+            if (!file || !file.name || file.size === 0) {
+                console.warn('Skipping empty file entry');
+                continue;
+            }
             try {
                 const path = await uploadPrintFile(file, 'orders');
                 uploaded.push({ name: file.name, path });
+                console.log('Uploaded:', file.name, '->', path);
             } catch (err) {
-                console.warn('Upload failed:', err.message);
+                console.error('Upload failed for', file.name, ':', err.message);
+                throw new Error(`Failed to upload ${file.name}: ${err.message}`);
             }
         }
         return uploaded;
     }
-
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const button = form.querySelector('button[type="submit"]');

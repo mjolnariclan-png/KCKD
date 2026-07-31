@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/admin.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<base target="_blank">
 </head>
 <body>
     <nav class="navbar">
@@ -162,6 +163,24 @@
             uploadPrintFile, resolveImageUrl
         } from './js/supabase.js';
 
+        /* ============================================================
+           TODO: Move this function into js/supabase.js and import it.
+           Replace YOUR_PROJECT_REF with your actual Supabase project ref.
+           If your bucket is not named 'print-uploads', change that too.
+           ============================================================ */
+        async function getPrintFileUrl(filePath) {
+            if (!filePath) return '#';
+            if (filePath.startsWith('http')) return filePath;
+            // Public URL pattern — swap YOUR_PROJECT_REF for your real one
+            return `https://dhzrhgyjpqotoujfwdwl.supabase.co/storage/v1/object/public/print-uploads/${filePath}`;
+            /*
+            // SIGNED URL version (more secure) — add to supabase.js instead:
+            const { data, error } = await supabase.storage.from('print-uploads').createSignedUrl(filePath, 3600);
+            if (error) throw error;
+            return data.signedUrl;
+            */
+        }
+
         async function boot() {
             const admin = await isAdmin();
             const gate = document.getElementById('adminGate');
@@ -288,11 +307,64 @@
             }
         }
 
+
+        function normalizeArray(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val.filter((x) => x !== '' && x !== null);
+            if (typeof val === 'string') {
+                try { return JSON.parse(val).filter((x) => x !== '' && x !== null); }
+                catch { return val ? [val] : []; }
+            }
+            return [];
+}
         // ================= 3D PRINT ORDERS =================
         async function buildOrderCard(order, options) {
-            const filesHtml = (order.file_paths || []).length
-                ? `<div class="order-info"><strong>Files:</strong> ${(order.file_names || []).join(', ')}</div>`
+            const filePaths = normalizeArray(order.file_paths);
+            const fileNames = normalizeArray(order.file_names);
+            const colors = normalizeArray(order.selected_colors);
+            
+            const hasFiles = filePaths.length > 0;
+            const hasWebsite = !!order.source_link;
+            const hasContent = hasFiles || hasWebsite;
+
+                // Website link
+            const websiteHtml = hasWebsite ? `
+                <div class="order-info"><strong>Website:</strong> <a href="${order.source_link}" target="_blank" rel="noopener noreferrer" class="order-website-link">🔗 ${order.source_link}</a></div>
+            ` : '';
+
+            // Downloadable files
+            let filesHtml = '';
+            if (hasFiles) {
+                const fileLinks = await Promise.all(filePaths.map(async (fp, i) => {
+                    const fname = fileNames[i] || fp;
+                    let url = '#';
+                    try { url = await getPrintFileUrl(fp); } catch (e) { console.error(e); }
+                    return `<a href="${url}" download class="file-link" title="Download ${fname}">📎 ${fname}</a>`;
+                }));
+                filesHtml = `<div class="order-info"><strong>Files:</strong><div class="file-list">${fileLinks.join('')}</div></div>`;
+            }
+
+            // Gallery permission badge
+            const galleryPermHtml = `
+                <div class="order-info"><strong>Gallery Post:</strong> 
+                    <span class="gallery-badge ${order.allow_gallery_post ? 'allowed' : 'denied'}">
+                        ${order.allow_gallery_post ? '✓ Allowed' : '✗ Denied'}
+                    </span>
+                </div>
+            `;
+
+            // Content-source banner (warns when notes are the only info)
+            const sourceBanner = !hasContent
+                ? `<div class="content-source-banner notes-only">⚠️ No files or website attached — rely on notes below</div>`
                 : '';
+
+            // Notes — highlighted when they're the sole source
+            const notesClass = !hasContent ? 'notes-solo' : '';
+            const notesHtml = order.notes
+                ? `<div class="order-info ${notesClass}"><strong>Notes:</strong><div class="notes-text">${order.notes}</div></div>`
+                : (!hasContent
+                    ? `<div class="order-info notes-solo notes-missing"><strong>Notes:</strong> <em>No information provided — this order has no files, website, or notes!</em></div>`
+                    : `<div class="order-info"><strong>Notes:</strong> <em>None</em></div>`);
 
             const galleryFormHtml = options.showGalleryForm ? `
                 <div class="gallery-form">
@@ -325,9 +397,11 @@
                     <div class="order-info"><strong>Email:</strong> <a href="mailto:${order.email}">${order.email}</a></div>
                     <div class="order-info"><strong>Phone:</strong> ${order.phone || 'Not provided'}</div>
                     <div class="order-info"><strong>Deadline:</strong> ${order.deadline || 'Flexible'}</div>
-                    <div class="order-info"><strong>Colors:</strong> ${(order.selected_colors || []).join(', ') || 'None specified'}</div>
-                    <div class="order-info"><strong>Notes:</strong> ${order.notes || 'None'}</div>
+                    <div class="order-info"><strong>Colors:</strong> ${colors.join(', ') || 'None specified'}</div>                    ${galleryPermHtml}
+                    ${websiteHtml}
                     ${filesHtml}
+                    ${sourceBanner}
+                    ${notesHtml}
                     ${completeToggle}
                     ${reopenToggle}
                     ${galleryFormHtml}
