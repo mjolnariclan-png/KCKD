@@ -271,7 +271,7 @@
 }
 
 .review-mod-card {
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.26);
     border-left: 3px solid var(--accent);
     padding: 1rem 1.5rem;
     border-radius: 8px;
